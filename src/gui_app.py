@@ -236,14 +236,23 @@ class AudioCinemaGUI:
         self.msg_text.pack(fill=BOTH, expand=True)
         self._set_messages(["Listo. Presiona «Prueba ahora» para iniciar."])
 
+    #-------------------------------------------------------------------------------------NUEVO
     def _clear_waves(self):
-        for ax, title in ((self.ax_ref, "Pista de referencia"), (self.ax_cur, "Pista de prueba")):
+        axes = [
+            (self.ax_ref_orig, "Referencia – ORIGINAL"),
+            (self.ax_ref_cut,  "Referencia – RECORTADA"),
+            (self.ax_cur_orig, "Prueba – ORIGINAL"),
+            (self.ax_cur_cut,  "Prueba – RECORTADA"),
+        ]
+    
+        for ax, title in axes:
             ax.clear()
             ax.set_title(title)
             ax.set_xlabel("Tiempo (s)")
             ax.set_ylabel("Amplitud")
             ax.grid(True, axis='x', ls=':')
-        self.canvas.draw_idle()
+    #-------------------------------------------------------------------------------------NUEVO
+
 
     def _plot_wave(self, ax, x: np.ndarray, fs: int):
         n = len(x)
