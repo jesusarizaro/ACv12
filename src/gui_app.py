@@ -487,7 +487,10 @@ class AudioCinemaGUI:
 
         out = EXPORT_DIR / f"analysis_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
         with open(out, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
+            from analyzer import json_safe
+
+            json.dump(json_safe(payload), f, ensure_ascii=False, indent=2)
+
 
         sent = False
         host = self._cfg(["thingsboard","host"], "thingsboard.cloud")
