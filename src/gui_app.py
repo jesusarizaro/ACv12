@@ -455,10 +455,9 @@ class AudioCinemaGUI:
         self._set_eval(res["overall"] == "PASSED")
         
         # 5) beeps/segments para JSON (sobre recortadas)
-        self.ref_markers = detect_beeps(x_ref_cut, fs)
-        self.cur_markers = detect_beeps(x_cur_cut, fs)
-        self.ref_segments = build_segments(x_ref_cut, fs, self.ref_markers)
-        self.cur_segments = build_segments(x_cur_cut, fs, self.cur_markers)
+        x_ref_cut, ref_crop_info = crop_between_flags(x_ref, fs)
+        x_cur_cut, cur_crop_info = crop_between_flags(x_cur, fs)
+
         
         # 6) dibujar ondas (4 gráficas)
         self._clear_waves()
@@ -477,9 +476,15 @@ class AudioCinemaGUI:
 
         # 7) exportar y enviar
         payload = build_json_payload(
-            fs, res, [], self.ref_markers, self.cur_markers,
-            self.ref_segments, self.cur_segments, None, None
+            fs,
+            res,
+            [],
+            [], [],        # ref_markers, cur_markers
+            [], [],        # ref_segments, cur_segments
+            None,
+            None
         )
+
         out = EXPORT_DIR / f"analysis_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
         with open(out, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
