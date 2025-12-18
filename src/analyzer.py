@@ -222,3 +222,23 @@ def build_json_payload(
     }
 
     return payload
+
+def json_safe(obj):
+    """
+    Convierte recursivamente tipos NumPy a tipos nativos de Python
+    para que json.dump no falle.
+    """
+    if isinstance(obj, dict):
+        return {k: json_safe(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [json_safe(v) for v in obj]
+    elif isinstance(obj, tuple):
+        return [json_safe(v) for v in obj]
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, (np.int32, np.int64)):
+        return int(obj)
+    else:
+        return obj
