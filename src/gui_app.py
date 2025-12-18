@@ -426,7 +426,7 @@ class AudioCinemaGUI:
     def _run_once(self):
         # Lee SIEMPRE desde config (garantiza consistencia)
         fs  = int(self._cfg(["audio","fs"], 48000))
-        dur = float(self._cfg(["audio","duration_s"], 10.0))
+        dur = float(self._cfg(["audio","duration_s"], 60.0))
         self.last_fs = fs
 
         # 1) cargar referencia
@@ -447,22 +447,31 @@ class AudioCinemaGUI:
         # 2) grabar muestra
         x_cur = record_audio(dur, fs=fs, channels=1, device=self.input_device_index)
 
-        # 3) analizar
-        res = analyze_pair(x_ref, x_cur, fs)
+        # 3) recortar por banderas (5500 Hz)
+        x_ref_cut, ref_crop_info = crop_between_flags(x_ref, fs)
+        x_cur_cut, cur_crop_info = crop_between_flags(x_cur, fs)
+        
+        # 4) analizar SOLO las señales recortadas
+        res = analyze_pair(x_ref_cut, x_cur_cut, fs)
         self._set_eval(res["overall"] == "PASSED")
-
-        # 4) beeps/segments para JSON
-        self.ref_markers = detect_beeps(x_ref, fs)
-        self.cur_markers = detect_beeps(x_cur, fs)
-        self.ref_segments = build_segments(x_ref, fs, self.ref_markers)
-        self.cur_segments = build_segments(x_cur, fs, self.cur_markers)
-
-        # 5) dibujar ondas
-        self.last_ref, self.last_cur = x_ref, x_cur
+        
+        # 5) beeps/segments para JSON (sobre recortadas)
+        self.ref_markers = detect_beeps(x_ref_cut, fs)
+        self.cur_markers = detect_beeps(x_cur_cut, fs)
+        self.ref_segments = build_segments(x_ref_cut, fs, self.ref_markers)
+        self.cur_segments = build_segments(x_cur_cut, fs, self.cur_markers)
+        
+        # 6) dibujar ondas (4 gráficas)
         self._clear_waves()
-        self._plot_wave(self.ax_ref, x_ref, fs)
-        self._plot_wave(self.ax_cur, x_cur, fs)
+        
+        self._plot_wave(self.ax_ref_orig, x_ref, fs)
+        self._plot_wave(self.ax_ref_cut,  x_ref_cut, fs)
+        
+        self._plot_wave(self.ax_cur_orig, x_cur, fs)
+        self._plot_wave(self.ax_cur_cut,  x_cur_cut, fs)
+        
         self.canvas.draw_idle()
+
 
         # 6) nombre de la prueba (no editable)
         self.test_name.set(datetime.now().strftime("Test_%Y-%m-%d_%H-%M-%S"))
