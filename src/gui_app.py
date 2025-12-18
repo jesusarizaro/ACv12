@@ -26,6 +26,15 @@ from analyzer import (
 )
 from iot_tb import send_json_to_thingsboard
 
+from analyzer import (
+    normalize_mono, record_audio, analyze_pair,
+    detect_beeps, build_segments, build_json_payload,
+    crop_between_flags   # ← NUEVO
+)
+
+
+
+
 APP_NAME = "AudioCinema"
 SAVE_DIR = (APP_DIR / "data" / "captures").absolute()
 EXPORT_DIR = (APP_DIR / "data" / "reports").absolute()
