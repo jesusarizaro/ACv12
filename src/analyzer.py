@@ -238,37 +238,40 @@ def analyze_pair(x_ref: np.ndarray, x_cur: np.ndarray, fs: int) -> dict:
 
 #-------------------------------------------------------------NUEVO
 
-def crop_from_frequency(
+def detect_flag_offsets_by_freq(
     x: np.ndarray,
     fs: int,
-    target_freq: float = 5000.0,
-    freq_tol: float = 30.0,
+    target_freq: float = 5500.0,
+    freq_tol: float = 40.0,
     threshold_db: float = -40.0,
-    win_ms: float = 20.0,
-    hop_ms: float = 10.0
-):
-    """
-    Detecta una frecuencia objetivo y recorta la señal desde ese instante.
-    Retorna: señal original, señal recortada, sample_rate, índice de inicio
-    """
-
+    win_ms: float = 30.0,
+    hop_ms: float = 10.0,
+    min_sep_s: float = 0.3
+) -> list[int]:
     win = int(fs * win_ms * 1e-3)
     hop = int(fs * hop_ms * 1e-3)
+    offsets = []
 
     for i in range(0, len(x) - win, hop):
-        frame = x[i:i + win] * np.hanning(win)
+        frame = x[i:i+win] * np.hanning(win)
         spec = np.fft.rfft(frame)
-        freqs = np.fft.rfftfreq(win, d=1 / fs)
-        mag_db = 20 * np.log10(np.abs(spec) + 1e-12)
+        freqs = np.fft.rfftfreq(win, d=1/fs)
+        mag_db = 20*np.log10(np.abs(spec) + 1e-12)
 
         mask = (freqs >= target_freq - freq_tol) & \
                (freqs <= target_freq + freq_tol)
 
         if np.any(mask) and np.max(mag_db[mask]) > threshold_db:
-            return x, x[i:], fs, i
+            offsets.append(i)
 
-    # fallback
-    return x, x.copy(), fs, 0
+    # eliminar detecciones duplicadas del mismo beep
+    filtered = []
+    min_sep = int(min_sep_s * fs)
+    for o in offsets:
+        if not filtered or o - filtered[-1] > min_sep:
+            filtered.append(o)
+
+    return filtered
 
 
 
