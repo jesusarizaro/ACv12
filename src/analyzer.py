@@ -237,7 +237,6 @@ def analyze_pair(x_ref: np.ndarray, x_cur: np.ndarray, fs: int) -> dict:
 
 
 #-------------------------------------------------------------NUEVO
-
 def detect_flag_offsets_by_freq(
     x: np.ndarray,
     fs: int,
@@ -273,6 +272,29 @@ def detect_flag_offsets_by_freq(
 
     return filtered
 
+#-------------------------------------------------------------NUEVO
+def crop_between_flags(
+    x: np.ndarray,
+    fs: int,
+    flag_freq: float = 5500.0
+) -> tuple[np.ndarray, dict]:
+    offsets = detect_flag_offsets_by_freq(x, fs, target_freq=flag_freq)
+
+    if len(offsets) < 2:
+        return x.copy(), {
+            "cropped": False,
+            "start_s": None,
+            "end_s": None
+        }
+
+    start = offsets[0]
+    end   = offsets[-1]
+
+    return x[start:end], {
+        "cropped": True,
+        "start_s": round(start/fs, 4),
+        "end_s": round(end/fs, 4)
+    }
 
 
 
