@@ -464,8 +464,13 @@ class AudioCinemaGUI:
         self._set_eval(res["overall"] == "PASSED")
         
         # 5) beeps/segments para JSON (sobre recortadas)
-        x_ref_cut, ref_crop_info = crop_between_frequency_flags(x_ref, fs)
-        x_cur_cut, cur_crop_info = crop_between_frequency_flags(x_cur, fs)
+        x_ref_orig, x_ref_cut, fs, ref_start, ref_end = crop_between_frequency_flags(
+            x_ref, fs
+        )
+
+        x_cur_orig, x_cur_cut, fs, cur_start, cur_end = crop_between_frequency_flags(
+            x_cur, fs
+        )
 
         
         # 6) dibujar ondas (4 gráficas)
