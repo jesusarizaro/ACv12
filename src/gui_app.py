@@ -459,13 +459,33 @@ class AudioCinemaGUI:
 
         
         # 6) dibujar ondas (4 gráficas)
+        # =========================
+        # RECORTE POR BANDERAS 5500 Hz
+        # =========================
+        x_ref_o, x_ref_cut, fs, ref_start, ref_end = crop_between_frequency_flags(
+            x_ref, fs
+        )
+        
+        x_cur_o, x_cur_cut, fs, cur_start, cur_end = crop_between_frequency_flags(
+            x_cur, fs
+        )
+        
+        # =========================
+        # DIBUJAR 4 GRÁFICAS
+        # =========================
         self._clear_waves()
         
-        self._plot_wave(self.ax_ref_orig, x_ref, fs)
-        self._plot_wave(self.ax_ref_cut,  x_ref_cut, fs)
+        self._plot_wave(self.ax_ref_orig, x_ref_o, fs)
+        self.ax_ref_orig.axvline(ref_start / fs, color="green", ls="--")
+        self.ax_ref_orig.axvline(ref_end   / fs, color="red",   ls="--")
         
-        self._plot_wave(self.ax_cur_orig, x_cur, fs)
-        self._plot_wave(self.ax_cur_cut,  x_cur_cut, fs)
+        self._plot_wave(self.ax_ref_cut, x_ref_cut, fs)
+        
+        self._plot_wave(self.ax_cur_orig, x_cur_o, fs)
+        self.ax_cur_orig.axvline(cur_start / fs, color="green", ls="--")
+        self.ax_cur_orig.axvline(cur_end   / fs, color="red",   ls="--")
+        
+        self._plot_wave(self.ax_cur_cut, x_cur_cut, fs)
         
         self.canvas.draw_idle()
 
