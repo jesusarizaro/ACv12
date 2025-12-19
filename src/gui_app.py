@@ -256,7 +256,8 @@ class AudioCinemaGUI:
             ax.set_title(title)
             ax.set_xlabel("Tiempo (s)")
             ax.set_ylabel("Amplitud")
-            ax.grid(True, axis='x', ls=':')
+            ax.grid(True, axis="x", ls=":")
+
     #-------------------------------------------------------------------------------------NUEVO
 
 
