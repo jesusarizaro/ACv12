@@ -215,7 +215,7 @@ class AudioCinemaGUI:
         fig_card = ttk.Frame(right, padding=4)
         fig_card.pack(fill=BOTH, expand=True)
 
-        self.fig = Figure(figsize=(5,4), dpi=100)
+        self.fig = Figure(figsize=(7, 8), dpi=100)
 
         #-----------------------------------------
         #self.ax_ref = self.fig.add_subplot(2,1,1)
@@ -227,10 +227,10 @@ class AudioCinemaGUI:
         self.ax_cur_cut  = self.fig.add_subplot(2, 2, 4)
 
 
-
         
         self.canvas = FigureCanvasTkAgg(self.fig, master=fig_card)
         self.canvas.get_tk_widget().pack(fill=BOTH, expand=True)
+
         self._clear_waves()
         self.fig.tight_layout()
 
