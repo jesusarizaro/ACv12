@@ -22,6 +22,9 @@ from app_platform import APP_DIR, ASSETS_DIR, ensure_dirs
 from configio import load_config, save_config
 from iot_tb import send_json_to_thingsboard
 
+from analyzer import crop_between_frequency_flags
+
+
 from analyzer import (
     normalize_mono,
     record_audio,
@@ -448,8 +451,13 @@ class AudioCinemaGUI:
         x_cur = record_audio(dur, fs=fs, channels=1, device=self.input_device_index)
 
         # 3) recortar por banderas (5500 Hz)
-        x_ref_cut, ref_crop_info = crop_between_flags(x_ref, fs)
-        x_cur_cut, cur_crop_info = crop_between_flags(x_cur, fs)
+        x_ref_o, x_ref_cut, fs, ref_start, ref_end = crop_between_frequency_flags(
+            x_ref, fs
+        )
+
+        x_cur_o, x_cur_cut, fs, cur_start, cur_end = crop_between_frequency_flags(
+            x_cur, fs
+        )
         
         # 4) analizar SOLO las señales recortadas
         res = analyze_pair(x_ref_cut, x_cur_cut, fs)
